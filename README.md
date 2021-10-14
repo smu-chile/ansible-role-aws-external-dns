@@ -9,9 +9,11 @@ Role Variables
 --------------
 
 ```
-    SEALED_SECRET_RELEASE: Release version to install, [More info](https://github.com/bitnami-labs/sealed-secrets/releases)
-    SEALED_SECRET_KEY: Key pair to decrypt secrets
-    SEALED_SECRET_CERTIFICATE: Key pair to decrypt secrets
+      AWS_ACCESS_KEY_ID
+      AWS_SECRET_ACCESS_KEY
+      REGION: AWS region
+      CLUSTER_NAME
+      ROOT_DOMAIN
 ```
 
 Example Playbook
@@ -22,10 +24,12 @@ Example Playbook
 - hosts: "{{ lookup('env','BASTION_IP') }}"
   become: no
   remote_user: "ubuntu"
-    - role: sealed-secret
-      SEALED_SECRET_KEY: "{{ lookup('env', 'SEALED_SECRET_KEY') }}"
-      SEALED_SECRET_CERTIFICATE: "{{ lookup('env', 'SEALED_SECRET_CERTIFICATE') }}"
-      SEALED_SECRET_RELEASE: "{{ lookup('env', 'SEALED_SECRET_RELEASE') }}"
+    - role: external-dns
+      AWS_ACCESS_KEY_ID: "{{ lookup('env', 'AWS_ACCESS_KEY_ID') }}"
+      AWS_SECRET_ACCESS_KEY: "{{ lookup('env', 'AWS_SECRET_ACCESS_KEY') }}"
+      REGION: "{{ lookup('env', 'REGION') }}"
+      CLUSTER_NAME: "{{ lookup('env', 'CLUSTER_NAME') }}"
+      ROOT_DOMAIN: "{{ lookup('env', 'ROOT_DOMAIN') }}"
 ```
 
 License
