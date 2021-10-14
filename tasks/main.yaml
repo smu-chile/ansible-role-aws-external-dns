@@ -1,0 +1,40 @@
+## SealedSecret
+- name: "Verify that required string variables are defined"
+  assert:
+    that: 
+      - required_variable is defined
+      - required_variable | length > 0
+      - required_variable != None
+    fail_msg: "{{ required_variable }} needs to be set for the role to work"
+    success_msg: "Required variable {{ required_variable}} is defined"
+  loop_control:
+    loop_var: required_variable
+  with_items:
+    - "{{ CLUSTER_NAME }}"
+    - "{{ AWS_ACCESS_KEY_ID }}"
+    - "{{ AWS_SECRET_ACCESS_KEY }}"
+    - "{{ REGION }}"
+  no_log: True
+
+- name: AWS-Configure
+  shell: |
+    aws configure set aws_access_key_id {{ AWS_ACCESS_KEY_ID }}
+    aws configure set aws_secret_access_key {{ AWS_SECRET_ACCESS_KEY }}
+    aws configure set default.region {{ REGION }}
+
+- name: Obtain Cluster IAMServiceAccount
+  shell: eksctl get iamserviceaccount --cluster="{{ CLUSTER_NAME }}" --name=external-dns -o json | jq -r 'select(.[].metadata.namespace | contains("default")) | .[].status[]'
+  register: iamserviceaccount
+
+- name: Creating external-dns-deployment.yaml
+  template:
+    src: external-dns-deployment.j2
+    dest: external-dns-deployment.yaml
+
+- name: Setup external dns
+  shell: kubectl apply -f external-dns-deployment.yaml
+
+- name: Deleting external-dns-deployment.yaml
+  file:
+    path: external-dns-deployment.yaml
+    state: absent
