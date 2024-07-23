@@ -2,19 +2,30 @@
 - name: "Verify that required string variables are defined"
   assert:
     that: 
-      - required_variable is defined
-      - required_variable | length > 0
-      - required_variable != None
-    fail_msg: "{{ required_variable }} needs to be set for the role to work"
-    success_msg: "Required variable {{ required_variable}} is defined"
-  loop_control:
-    loop_var: required_variable
-  with_items:
+      - item is defined
+      - item | length > 0
+      - item != None
+    fail_msg: "{{ item }} needs to be set for the role to work"
+    success_msg: "Required variable {{ item }} is defined"
+  loop: 
     - "{{ CLUSTER_NAME }}"
     - "{{ AWS_ACCESS_KEY_ID }}"
     - "{{ AWS_SECRET_ACCESS_KEY }}"
     - "{{ REGION }}"
+  loop_control:
+    loop_var: item
   no_log: True
+
+- name: Show the current value of loop_var
+  debug:
+    msg: "Currently processing variable with value: {{ item }}"
+  loop: 
+    - "{{ CLUSTER_NAME }}"
+    - "{{ AWS_ACCESS_KEY_ID }}"
+    - "{{ AWS_SECRET_ACCESS_KEY }}"
+    - "{{ REGION }}"
+  loop_control:
+    loop_var: item
 
 - name: AWS-Configure
   shell: |
