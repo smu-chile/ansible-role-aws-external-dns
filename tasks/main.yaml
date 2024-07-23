@@ -10,8 +10,7 @@
   loop_control:
     loop_var: required_variable
   with_items:
-    - aws-virginia-portal-ventas-produccion
-    - us-east-1
+    - "{{ REGION }}"
   no_log: True
 
 # - name: AWS-Configure
